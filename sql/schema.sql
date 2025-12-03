@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS Member;
+
+CREATE TABLE Member (
+    MID   INTEGER PRIMARY KEY,
+    name        TEXT NOT NULL
+);
+
