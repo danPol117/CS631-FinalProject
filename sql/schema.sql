@@ -16,15 +16,16 @@ CREATE Table Grant (
     SOURCE     INTEGER,
     BUDGET     REAL,
     StartDate  DATE,
-    Duration   INTEGER,
+    Duration   INTEGER
 );
 
-Create Table Funds (
-    GID     INTEGER PRIMARY KEY,
-    PID    INTEGER PRIMARY KEY,
-    FOREIGN Key GID REFERENCES Grant(GID),
-    FOREIGN Key PID REFERENCES Project(PID)
-)
+CREATE TABLE Funds (
+    GID INTEGER,
+    PID INTEGER,
+    PRIMARY KEY (GID, PID),
+    FOREIGN KEY (GID) REFERENCES Grant(GID),
+    FOREIGN KEY (PID) REFERENCES Project(PID)
+);
 
 Create Table Project (
     PID     INTEGER PRIMARY KEY,
@@ -36,14 +37,15 @@ Create Table Project (
     FOREIGN KEY (Leader) REFERENCES Faculty(MID)
 );
 
-Create Table Works(
-    PID    INTEGER PRIMARY KEY,
-    MID    INTEGER PRIMARY KEY,
-    Role   TEXT,
+CREATE TABLE Works (
+    PID   INTEGER,
+    MID   INTEGER,
+    Role  TEXT,
     Hours INTEGER,
+    PRIMARY KEY (PID, MID),
     FOREIGN KEY (PID) REFERENCES Project(PID),
     FOREIGN KEY (MID) REFERENCES Lab_Member(MID)
-)
+);
 
 CREATE TABLE Lab_Member (
     MID   INTEGER PRIMARY KEY,
@@ -75,12 +77,13 @@ Create Table Faculty (
     FOREIGN KEY (MID) REFERENCES Lab_Member(MID)
 );
 
-Create Table Uses (
-    MID     INTEGER PRIMARY KEY,
-    EID     INTEGER PRIMARY KEY,
+CREATE TABLE Uses (
+    MID    INTEGER,
+    EID    INTEGER,
     SDate  DATE NOT NULL,
-    Edate  DATE,
+    EDate  DATE,
     Purpose TEXT,
+    PRIMARY KEY (MID, EID, SDate),
     FOREIGN KEY (MID) REFERENCES Lab_Member(MID),
     FOREIGN KEY (EID) REFERENCES Equipment(EID)
 );
@@ -89,16 +92,17 @@ Create Table Equipment (
     EID     INTEGER PRIMARY KEY,
     Etype    TEXT NOT NULL,
     Ename   TEXT NOT NULL,
-    Status  TEXT NOT NULL
+    Status  TEXT NOT NULL,
     pdate DATE
 );
 
-Create Table Publishes (
-    MID    INTEGER PRIMARY KEY,
-    PID    INTEGER PRIMARY KEY,
-    Sdate  DATE NOT NULL,
-    Edate  DATE,
+CREATE TABLE Publishes (
+    MID     INTEGER,
+    PID     INTEGER,
+    Sdate   DATE NOT NULL,
+    Edate   DATE,
     Purpose TEXT,
+    PRIMARY KEY (MID, PID),
     FOREIGN KEY (MID) REFERENCES Lab_Member(MID),
     FOREIGN KEY (PID) REFERENCES Publication(PID)
 );
