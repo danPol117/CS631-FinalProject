@@ -197,26 +197,108 @@ def equipment_menu():
     print("6. Show Members Using Equipment")
     print("7. Back to Main Menu")
     choice = input("Enter choice: ")
+
     match choice:
         case "1":
-            print("Query Equipment selected")
+            # Query all equipment
+            conn, cur = get_connection_and_cursor()
+            cur.execute("SELECT * FROM Equipment")
+            rows = cur.fetchall()
+            for row in rows:
+                print(dict(row))
+            conn.close()
+
         case "2":
-            print("Add Equipment selected")
+            # Add new equipment
+            conn, cur = get_connection_and_cursor()
+            eid = input("Enter equipment id: ")
+            etype = input("Enter equipment type: ")
+            ename = input("Enter equipment name: ")
+            status = input("Enter status (OK/Down): ")
+            pdate = input("Enter purchase date: ")
+
+            cur.execute(
+                "INSERT INTO Equipment VALUES (?, ?, ?, ?, ?)",
+                (eid, etype, ename, status, pdate)
+            )
+            conn.commit()
+            conn.close()
+
         case "3":
-            print("Update Equipment selected")
+            # Update equipment
+            conn, cur = get_connection_and_cursor()
+            eid = input("Enter equipment id to update: ")
+            etype = input("Enter new type: ")
+            ename = input("Enter new name: ")
+            status = input("Enter new status: ")
+            pdate = input("Enter new purchase date: ")
+
+            cur.execute(
+                "UPDATE Equipment SET Etype=?, Ename=?, Status=?, pdate=? WHERE EID=?",
+                (etype, ename, status, pdate, eid)
+            )
+            conn.commit()
+            conn.close()
+
         case "4":
-            print("Remove Equipment selected")
+            # Remove equipment
+            conn, cur = get_connection_and_cursor()
+            eid = input("Enter equipment id to remove: ")
+            cur.execute("DELETE FROM Equipment WHERE EID=?", (eid,))
+            conn.commit()
+            conn.close()
+
         case "5":
-            print("Show Equipment Status selected")
+            # Show equipment status
+            conn, cur = get_connection_and_cursor()
+            eid = input("Enter equipment id: ")
+
+            cur.execute("SELECT EID, Ename, Status FROM Equipment WHERE EID=?", (eid,))
+            row = cur.fetchone()
+            if row:
+                print(dict(row))
+            else:
+                print("Equipment not found.")
+            conn.close()
+
         case "6":
-            print("Show Members Using Equipment selected")
+            # Show members currently using a piece of equipment AND their projects
+            conn, cur = get_connection_and_cursor()
+            eid = input("Enter equipment id: ")
+
+            query = """
+            SELECT 
+                lm.Name AS Member,
+                u.SDate AS Start,
+                u.EDate AS End,
+                p.Title AS Project
+            FROM Uses u
+            JOIN Lab_Member lm ON u.MID = lm.MID
+            LEFT JOIN Works w ON lm.MID = w.MID
+            LEFT JOIN Project p ON w.PID = p.PID
+            WHERE u.EID = ?
+            """
+            cur.execute(query, (eid,))
+            rows = cur.fetchall()
+
+            if not rows:
+                print("No members are using this equipment.")
+            else:
+                for row in rows:
+                    print(dict(row))
+
+            conn.close()
+
         case "7":
             menu()
             return
+
         case _:
             print("Invalid choice")
             equipment_menu()
+            return
     menu()
+
 
     """
     3. GRANT AND PUBLICATION REPORTING.
