@@ -316,13 +316,72 @@ def reporting_menu():
     choice = input("Enter choice: ")
     match choice:
         case "1":
-            print("Highest Number of Publications selected")
+            conn, cur = get_connection_and_cursor()
+            cur.execute("""
+                SELECT lm.Name, COUNT(pu.PID) AS PubCount
+                FROM Lab_Member lm
+                JOIN Publishes pu ON lm.MID = pu.MID
+                GROUP BY lm.MID
+                HAVING PubCount = (
+                    SELECT MAX(cnt)
+                    FROM (SELECT COUNT(*) AS cnt FROM Publishes GROUP BY MID)
+                )
+            """)
+            for row in cur.fetchall():
+                print(dict(row))
+            conn.close()
+
         case "2":
-            print("Average Number of Student Publications per Major selected")
+            conn, cur = get_connection_and_cursor()
+            cur.execute("""
+                SELECT sub.Major, AVG(pubcount) AS AvgPubs
+                FROM (
+                    SELECT s.Major AS Major, COUNT(pu.PID) AS pubcount
+                    FROM Student s
+                    LEFT JOIN Publishes pu ON s.MID = pu.MID
+                    GROUP BY s.MID
+                ) sub
+                GROUP BY sub.Major
+            """)
+            for row in cur.fetchall():
+                print(dict(row))
+            conn.close()
+
         case "3":
-            print("Number of Projects Funded by Grant in Given Period selected")
+            conn, cur = get_connection_and_cursor()
+            gid = input("Enter grant id: ")
+            start = input("Enter start date: ")
+            end = input("Enter end date: ")
+            cur.execute("""
+                SELECT COUNT(*) AS ActiveProjectCount
+                FROM Project p
+                JOIN Funds f ON p.PID = f.PID
+                WHERE f.GID = ?
+                AND p.Sdate <= date(?)
+                AND (p.Edate IS NULL OR p.Edate >= date(?))
+            """, (gid, end, start))
+            for row in cur.fetchall():
+                print(dict(row))
+            conn.close()
+
         case "4":
-            print("Three Most Prolific Members for Given Grant selected")
+            conn, cur = get_connection_and_cursor()
+            gid = input("Enter grant id: ")
+            cur.execute("""
+                SELECT lm.Name, COUNT(pu.PID) AS PubCount
+                FROM Funds f
+                JOIN Works w ON f.PID = w.PID
+                JOIN Lab_Member lm ON w.MID = lm.MID
+                LEFT JOIN Publishes pu ON lm.MID = pu.MID
+                WHERE f.GID = ?
+                GROUP BY lm.MID
+                ORDER BY PubCount DESC
+                LIMIT 3
+            """, (gid,))
+            for row in cur.fetchall():
+                print(dict(row))
+            conn.close()
+
         case "5":
             menu()
             return
