@@ -102,14 +102,14 @@ def management_menu():  # sourcery skip: extract-duplicate-method, extract-metho
             member_type = input("Enter new member type: ")
             mentor_id_input = input("Enter new mentor id (or NULL): ")
             mentor_id = None if mentor_id_input.upper() == "NULL" else mentor_id_input
-            cur.execute("UPDATE Lab_Member SET name=?, join_date=?, member_type=?, mentor_id=? WHERE member_id=?", 
+            cur.execute("UPDATE Lab_Member SET Name=?, JoinDate=?, Mtype=?, mentor=? WHERE MID=?", 
                         (name, join_date, member_type, mentor_id, member_id))
             conn.commit()
             conn.close()
         case "4":
             conn, cur = get_connection_and_cursor()
             member_id = input("Enter member id to remove: ")
-            cur.execute("DELETE FROM Lab_Member WHERE member_id=?", (member_id,))
+            cur.execute("DELETE FROM Lab_Member WHERE Mid=?", (member_id,))
             conn.commit()
             conn.close()
         case "5":
@@ -141,14 +141,14 @@ def management_menu():  # sourcery skip: extract-duplicate-method, extract-metho
             end_date = None if end_date_input.upper() == "NULL" else end_date_input
             duration = input("Enter new duration: ")
             leader_id = input("Enter new leader id: ")
-            cur.execute("UPDATE Project SET title=?, start_date=?, end_date=?, duration=?, leader_id=? WHERE project_id=?", 
+            cur.execute("UPDATE Project SET Title=?, Sdate=?, Edate=?, EDuration=?, Leader=? WHERE PID=?", 
                         (title, start_date, end_date, duration, leader_id, project_id))
             conn.commit()
             conn.close()
         case "8":
             conn, cur = get_connection_and_cursor()
             project_id = input("Enter project id to remove: ")
-            cur.execute("DELETE FROM Project WHERE project_id=?", (project_id,))
+            cur.execute("DELETE FROM Project WHERE PID=?", (project_id,))
             conn.commit()
             conn.close()
         case "9":
